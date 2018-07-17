@@ -9,6 +9,7 @@ int init_module(void){
 	file_op.write = schar_write;
 	file_op.open = schar_open;
 	file_op.release = schar_release;
+	file_op.unlocked_ioctl = schar_unlocked_ioctl;
 	//将本驱动程序注册到指定的字符设备上面
 	int res = register_chrdev(MAJOR_SCHAR, NAME_SCHAR, &file_op);
         if(res < 0){
@@ -75,6 +76,50 @@ static ssize_t schar_write(struct file* pfile, const char* buf, size_t count, lo
 	LOG("schar_write: count = %d, buf = %s ", count, buf);
 	return count;
 }
+
+
+
+/**
+ * 对设备进行io控制
+ * 参数arg是一个地址，因为客户端调用的时候传递过来的是一个地址
+ * 因此arg可以强转为指针
+ */
+static long schar_unlocked_ioctl(struct file* pfile, unsigned int \
+		command, unsigned long arg){
+	int tmp = 1367;
+	int* p = NULL;
+	//检查魔术
+	if(_IOC_TYPE(command) != BASE_TYPE){
+		LOG("魔数不正确......\n");
+		return -ENOTTY;
+	}
+	switch(command){
+		case READ_POOL_COUNT:
+			LOG("READ_POOL_COUNT.......\n");
+			copy_to_user((int*)arg, &tmp, sizeof(tmp));
+			p = (int*)arg;
+			LOG("*p = %d ", *p);
+			break;
+		case SET_POOL_COUNT:
+			LOG("SET_POOL_COUNT........\n");
+			copy_from_user(&tmp, (int*)arg, sizeof(tmp));
+			LOG("设置的pool_count = %d ", tmp);
+			break;
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

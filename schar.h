@@ -26,6 +26,11 @@ MODULE_LICENSE("GPL");
 #define MAJOR_SCHAR 42
 #define NAME_SCHAR "schar"
 
+#define BASE_TYPE 0xbb
+#define READ_POOL_COUNT _IOR(BASE_TYPE, 0, int)
+#define SET_POOL_COUNT _IOW(BASE_TYPE, 1, int)
+
+
 /**
  * 打开设备的函数声明
  */
@@ -45,5 +50,11 @@ static ssize_t schar_read(struct file* pfile, char* buf, size_t count, loff_t* o
  * 向设备写数据的函数声明
  */
 static ssize_t schar_write(struct file* pfile, const char* buf, size_t count, loff_t* offset);
+
+/**
+ * 对设备进行io控制
+ */
+static long schar_unlocked_ioctl(struct file* pfile, unsigned int \
+		command, unsigned long arg);
 
 static struct file_operations file_op; 
